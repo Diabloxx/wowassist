@@ -3,7 +3,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 import os
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Mapping
 from .ocr import ocr_digits
 
 ICON_CACHE: Dict[str, np.ndarray] = {}
@@ -24,7 +24,7 @@ def match_icon(region: np.ndarray, icon: np.ndarray, threshold: float=0.85) -> b
 
 # Simplified placeholder extraction logic
 
-def extract_parts(frame: np.ndarray, masks: Dict[str, dict]) -> Dict[str, Any]:
+def extract_parts(frame: np.ndarray, masks: Mapping[str, Any]) -> Dict[str, Any]:
     parts: Dict[str, Any] = {}
     h, w = frame.shape[:2]
     # Example mask format: {"player_hp": {"x":100,"y":900,"w":200,"h":20}}
