@@ -167,6 +167,10 @@ Add a new spec file in `src/core/profiles/` implementing `RotationPolicy`. Provi
 - Add a mask file `classic_mop.json` in `src/data/masks/` if UI element positions differ.
 - The loader prefers flavor-specific profile then falls back to the base one.
 
+Included Classic MoP profiles:
+- Discipline Priest: `priest_discipline_mop.py`
+- Survival Hunter: `hunter_survival_mop.py` (set `CLASS_SPEC=hunter_survival` and `GAME_FLAVOR=classic_mop` to use flavor variant)
+
 ## Safety Defaults Recap
 - `AUTOMATION_MODE=false` hard default.
 - Visible red banner when on.
