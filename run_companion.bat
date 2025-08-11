@@ -2,8 +2,12 @@
 REM WoW Companion setup + run script (Assist Mode default)
 setlocal ENABLEDELAYEDEXPANSION
 set ERR=0
-REM If launched by double-click (no args) keep window open at end
+
+REM Detect double-click (cmd.exe /c) and set KEEP_OPEN; also if no args.
+echo %CMDCMDLINE% | find /I "/c" >nul 2>&1 && set KEEP_OPEN=1
 if "%~1"=="" set KEEP_OPEN=1
+REM Force pause unless NO_PAUSE env var set externally
+if not defined NO_PAUSE set KEEP_OPEN=1
 
 REM Navigate into project subfolder
 cd /d "%~dp0wow-companion" || (echo [ERROR] Failed to cd into wow-companion & set ERR=1 & goto end)
@@ -32,7 +36,8 @@ if not exist requirements.txt (
   echo [INFO] Upgrading pip...
   python -m pip install --upgrade pip >nul 2>&1
   echo [INFO] Installing / syncing dependencies (may take a minute)...
-  python -m pip install -r requirements.txt || (echo [ERROR] Dependency install failed & set ERR=1 & goto end)
+  python -m pip install -r requirements.txt
+  if errorlevel 1 (echo [ERROR] Dependency install failed & set ERR=1 & goto end)
 )
 
 REM Optional: verify tesseract on PATH (warn only)
@@ -55,13 +60,15 @@ goto run_app
 
 :run_tests
 echo [INFO] Running test suite...
-python -m pytest -q || (echo [ERROR] Tests failed & set ERR=1 & goto end)
+python -m pytest -q
+if errorlevel 1 (echo [ERROR] Tests failed & set ERR=1 & goto end)
 echo [INFO] Tests complete.
 goto end
 
 :run_perf
 echo [INFO] Starting app with perf timings...
 python -m src.app --perf
+if errorlevel 1 (echo [ERROR] App exited with code %ERRORLEVEL% & set ERR=%ERRORLEVEL%)
 goto end
 
 :run_bench
@@ -69,11 +76,13 @@ set SECONDS=%2
 if "%SECONDS%"=="" set SECONDS=20
 echo [INFO] Benchmarking main loop for %SECONDS%s...
 python scripts/benchmark_loop.py --seconds %SECONDS%
+if errorlevel 1 (echo [ERROR] Benchmark exited with code %ERRORLEVEL% & set ERR=%ERRORLEVEL%)
 goto end
 
 :run_app
 echo [INFO] Launching WoW Companion (Assist Mode)...
 python -m src.app
+if errorlevel 1 (echo [ERROR] App exited with code %ERRORLEVEL% & set ERR=%ERRORLEVEL%)
 goto end
 
 :end
